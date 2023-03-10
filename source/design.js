@@ -96,7 +96,7 @@ for(let slide = 0; slide<5;slide++){
   dot.style.borderRadius = "13px";
   dot.style.backgroundColor = "black";
   dot.style.opacity = "0.4";
-  // dot.style.cursor = "pointer"
+  dot.style.cursor = "pointer";
   dot.style.transition = "all ease 0.6s"
   
   dotsWrap.appendChild(dot);
@@ -113,6 +113,7 @@ function dotwide(nth){
   }
 };
 dotwide(0)
+let dotCnt = 0;
 
 let slideBox = tagCreate("div",{id : "slideBox"});
 slideWrap.appendChild(slideBox)
@@ -140,69 +141,76 @@ styleCreate(scrollTitle,{
 });
 scrollTitle.textContent = "[교육 내용이 궁금하다면 마우스의 스크롤을 사용해보세요 ⬇⬆]";
 
+let slidePosition = [-1, -1 , 0, 1,1]
 let before = nameCard(_EXAMDATA.teamInformation.teamAllMember[4]);
-let now = nameCard(_EXAMDATA.teamInformation.teamAllMember[0]);
-let old = nameCard(_EXAMDATA.teamInformation.teamAllMember[1]);
 
-before.style.left = "-100%";
-now.style.left = "0%";
-old.style.left = "100%";
+slideBox.appendChild(nameCard(_EXAMDATA.teamInformation.teamAllMember[3]));
+slideBox.appendChild(nameCard(_EXAMDATA.teamInformation.teamAllMember[4]));
+slideBox.appendChild(nameCard(_EXAMDATA.teamInformation.teamAllMember[0]));
+slideBox.appendChild(nameCard(_EXAMDATA.teamInformation.teamAllMember[1]));
+slideBox.appendChild(nameCard(_EXAMDATA.teamInformation.teamAllMember[2]));
 
-slideBox.appendChild(before);
-slideBox.appendChild(now);
-slideBox.appendChild(old);
+function setSlidePosition(mother){
+  for(let i = 0; i < mother.children.length;i++){
+    mother.children[i].style.transition = "all ease 1s";
+    mother.children[i].style.left = `${100 * slidePosition[i]}%`;
+  };
+};
 
-let slideCnt = 1;
+setSlidePosition(slideBox);
+
+let slideCnt = 0;
+
+function rightMove(){
+  slideBox.appendChild(slideBox.children[0])
+  setSlidePosition(slideBox);
+  dotCnt ++;
+  dotCnt %= 5;
+  dotwide(dotCnt);
+
+}
+function leftMove(){
+  slideBox.prepend(slideBox.children[4])
+  setSlidePosition(slideBox);
+  if(dotCnt===0){
+    dotCnt = 4;
+  }else{
+    dotCnt --;
+  };
+  dotwide(dotCnt)
+}
 
 leftButton.addEventListener("click",()=>{
-  slideBox.children[0].style.transition = "all ease 1s"
-  slideBox.children[1].style.transition = "all ease 1s"
-  slideBox.children[2].style.transition = "all ease 1s"
-  slideBox.lastChild.remove()
-  slideBox.children[0].style.left = "0%";
-  slideBox.children[1].style.left = "100%";
-  let newOne = nameCard(_EXAMDATA.teamInformation.teamAllMember[slideCnt - 1]);
-  newOne.style.left = "-100%";
-  slideBox.prepend(newOne);
-  
-  dotwide(slideCnt);
-  slideCnt --;
-  slideCnt = Math.abs(slideCnt)%5;
+
+  leftMove()
 
 })
 rightButton.addEventListener("click",()=>{
-  slideBox.children[0].style.transition = "all ease 1s"
-  slideBox.children[1].style.transition = "all ease 1s"
-  slideBox.children[2].style.transition = "all ease 1s"
-  slideBox.firstChild.remove()
-  slideBox.children[1].style.left = "0%";
-  slideBox.children[0].style.left = "-100%";
-  let newOne = nameCard(_EXAMDATA.teamInformation.teamAllMember[slideCnt + 1]);
-  newOne.style.left = "100%";
-  slideBox.appendChild(newOne);
-  dotwide(slideCnt);
-  slideCnt ++;
-  slideCnt %= 5;
+  rightMove()
 })
 
 
 
 setInterval(()=>{
-  slideBox.children[0].style.transition = "all ease 1s"
-  slideBox.children[1].style.transition = "all ease 1s"
-  slideBox.children[2].style.transition = "all ease 1s"
-  slideBox.firstChild.remove()
-  slideBox.children[0].style.left = "-100%";
-  slideBox.children[1].style.left = "0%";
-  let newOne = nameCard(_EXAMDATA.teamInformation.teamAllMember[slideCnt]);
-  newOne.style.left = "100%";
-  slideBox.appendChild(newOne);
-  dotwide(slideCnt);
-  slideCnt ++;
-  slideCnt %= 5;
-
-
+  rightMove()
 },7000)
+
+for(let i = 0; i < dotsWrap.children.length;i++){
+  dotsWrap.children[i].addEventListener("click", ()=>{
+    let gap = Math.abs(i - dotCnt);
+    if(i>dotCnt){
+      for(let i = 0;i<gap;i++){
+        rightMove();
+      }
+    }else{
+      for(let i = 0;i<gap;i++){
+        leftMove();
+      }
+    }
+  })
+}
+
+
 
 window.addEventListener('scroll', function(){
 
@@ -215,7 +223,6 @@ window.addEventListener('scroll', function(){
     window.scrollTo({ left: 0, top: 20});
   }
   
-  // root.appendChild(subjectWindow(_EXAMDATA.trainingInformation.subject[0]));
   for(let i = 0; i < _EXAMDATA.trainingInformation.subject.length; i ++){
     let oddNum = (i + 1) * 2 - 1;
     if( cnt > 90 * oddNum - 20 && cnt < 90 * oddNum - 10 && root.children.length < 5){
